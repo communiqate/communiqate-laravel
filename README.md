@@ -309,35 +309,3 @@ final class UpdateDeliveryStatus implements ShouldQueue
 ```
 
 The controller verifies the original body against the `Signature` header before dispatching either event. Invalid signatures yield HTTP 401. Invalid signed envelopes yield 422. Successful dispatch returns 204. Configure a persistent queue and worker for queued listeners. CommuniQate can retry a delivery with the same ID, so deduplicate at the point where your listener changes application state.
-
-## Development
-
-Check out `communiqate-laravel` and `communiqate-php` side by side. Run the following from the Laravel package directory:
-
-```sh
-composer validate --strict
-composer install
-realpath vendor/communiqate/communiqate-php
-composer test
-```
-
-The Composer path repository symlinks the adjacent SDK working tree on any branch. Changes in that checkout are immediately visible to the Laravel tests. Composer uses the SDK's `dev-main` version alias for local dependency resolution. Applications that install from Packagist resolve the tagged SDK as a dependency.
-
-The tests exercise the Laravel mail manager, notification dispatcher and HTTP router with simulated API responses. To test a particular framework major locally, run `composer update --with 'laravel/framework:^12.0'` or `composer update --with 'laravel/framework:^13.0'`, then `composer test`. Run compatibility changes on PHP 8.3 through 8.6. Laravel 12 currently emits upstream deprecation notices on PHP 8.6.
-
-## Releases
-
-Use a Conventional Commit title for the squash merge into `main`. A `fix:` proposes a patch, a `feat:` a minor release, and a breaking change (for example `feat!:` with a migration note) a major release. After package changes merge into `main`, Release Please opens or updates a release PR with the next version and the English changelog. Merging that PR publishes the `vX.Y.Z` Git tag and GitHub Release. Each package is versioned independently. [Release Please](https://github.com/googleapis/release-please-action)
-
-### First release on Packagist
-
-1. Confirm that the PHP SDK’s `v0.1.0` tag has been indexed. [PHP SDK on Packagist](https://packagist.org/packages/communiqate/communiqate-php)
-2. Merge the Laravel package implementation, including its `composer.json`, into `main` with a `feat:` commit.
-3. Register `https://github.com/communiqate/communiqate-laravel` on Packagist and enable automatic updates through the GitHub hook. This is a one-time setup. [Submit a package](https://packagist.org/packages/submit) · [GitHub hook setup](https://packagist.org/about#how-to-update-packages)
-4. Merge the first release PR to publish the `v0.1.0` tag. Check that the version appears on the [Packagist package page](https://packagist.org/packages/communiqate/communiqate-laravel).
-
-### GitHub Actions settings
-
-Enable GitHub Actions and allow it to create pull requests. If your branch rules require CI on bot-created PRs without manual approval, set a repository-scoped `RELEASE_PLEASE_TOKEN` with contents, pull request and issue write access. The workflow otherwise uses the repository token.
-
-For automatic publication after an ordinary package PR merges, enable **Allow auto-merge** and **Allow squash merging** in GitHub, set `RELEASE_PLEASE_TOKEN`, and set the Actions variable `AUTO_MERGE_RELEASE_PRS=true`. The workflow enables auto-merge on its generated release PR. Required checks and reviews still apply. With the variable unset, a maintainer merges the release PR when ready.
